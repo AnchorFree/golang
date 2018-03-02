@@ -24,7 +24,7 @@
 //
 // Will produce the following log message:
 // {"level":"info","app":"myApp","context":[{"action_id":"id1","duration":10}],"message":"log event"}
-package log
+package jsonlog
 
 import (
 	"github.com/rs/zerolog"
