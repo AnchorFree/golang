@@ -46,6 +46,7 @@ import (
 type ProcInfo struct {
 	FirstSeen  time.Time
 	LastSeen   time.Time
+	State      string
 	Comm       string   // short name from /proc/pid/stat
 	Cmdline    []string // raw parts from /proc/pid/cmdline
 	Friendly   string   // our magically transformed name

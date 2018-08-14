@@ -160,6 +160,7 @@ func ProcStatsReader(pids Pidlist, filter Filters, cur *ProcSampleList, infoMap 
 		if newPid {
 			info.Comm = strings.Map(StripSpecial, parts[1])
 			info.Pid = uint64(pid)
+			info.State = parts[2]
 			info.Ppid = ReadUInt(parts[3])
 			info.Pgrp = ReadInt(parts[4])
 			info.Session = ReadInt(parts[5])
