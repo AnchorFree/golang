@@ -26,6 +26,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // crude protection against rollover. This will miss the last portion of the previous sample
@@ -141,4 +142,17 @@ func StripSpecial(r rune) rune {
 		return -1
 	}
 	return r
+}
+
+func SystemUptime() (time.Duration, error) {
+
+	raw, err := ReadSmallFile("/proc/uptime")
+	if err != nil {
+		return 0, err
+	}
+	firstPoint := strings.Index(string(raw), ".")
+	uptimeString := string(raw)[:firstPoint] + "s"
+	uptime, err := time.ParseDuration(uptimeString)
+	return uptime, err
+
 }

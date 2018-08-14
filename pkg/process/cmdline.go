@@ -37,6 +37,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -151,6 +152,18 @@ func (p *ProcInfo) updateCmdline() {
 	}
 
 	p.Friendly = strings.Map(StripSpecial, p.Friendly)
+}
+
+func (p *ProcInfo) Uptime() (time.Duration, error) {
+
+	systemUp, err := SystemUptime()
+	if err != nil {
+		return 0, err
+	}
+	processUp := uint64(systemUp.Seconds()) - (p.Starttime / GetClockTicksPerSecond())
+	uptime, err := time.ParseDuration(strconv.FormatUint(processUp, 10) + "s")
+	return uptime, err
+
 }
 
 func resolveUwsgi(parts []string) string {
