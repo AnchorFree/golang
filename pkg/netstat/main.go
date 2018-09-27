@@ -52,7 +52,7 @@ type Process struct {
 	ForeignPort int64
 }
 
-func getData(t string) []string {
+func getData(t string) ([]string, error) {
 	// Get data from tcp or udp file.
 
 	var proc_t string
@@ -72,13 +72,12 @@ func getData(t string) []string {
 
 	data, err := ioutil.ReadFile(proc_t)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, err
 	}
 	lines := strings.Split(string(data), "\n")
 
 	// Return lines without Header line and blank line on the end
-	return lines[1 : len(lines)-1]
+	return lines[1 : len(lines)-1], nil
 
 }
 
@@ -86,11 +85,10 @@ func hexToDec(h string) int64 {
 	// convert hexadecimal to decimal.
 	d, err := strconv.ParseInt(h, 16, 32)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return 0
 	}
-
 	return d
+
 }
 
 func convertIp(ip string) string {
@@ -188,40 +186,43 @@ func removeEmpty(array []string) []string {
 	return new_array
 }
 
-func netstat(t string) []Process {
+func netstat(t string) ([]Process, error) {
 	// Return a array of Process with Name, Ip, Port, State .. etc
 	// Require Root acess to get information about some processes.
 
 	var Processes []Process
 
-	data := getData(t)
+	data, err := getData(t)
+	if err == nil {
+		for _, line := range data {
 
-	for _, line := range data {
+			// local ip and port
+			line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
+			ip_port := strings.Split(line_array[1], ":")
+			ip := convertIp(ip_port[0])
+			port := hexToDec(ip_port[1])
 
-		// local ip and port
-		line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
-		ip_port := strings.Split(line_array[1], ":")
-		ip := convertIp(ip_port[0])
-		port := hexToDec(ip_port[1])
+			// foreign ip and port
+			fip_port := strings.Split(line_array[2], ":")
+			fip := convertIp(fip_port[0])
+			fport := hexToDec(fip_port[1])
 
-		// foreign ip and port
-		fip_port := strings.Split(line_array[2], ":")
-		fip := convertIp(fip_port[0])
-		fport := hexToDec(fip_port[1])
+			state := STATE[line_array[3]]
+			uid := getUser(line_array[7])
+			pid := findPid(line_array[9])
+			exe := getProcessExe(pid)
+			name := getProcessName(exe)
 
-		state := STATE[line_array[3]]
-		uid := getUser(line_array[7])
-		pid := findPid(line_array[9])
-		exe := getProcessExe(pid)
-		name := getProcessName(exe)
+			p := Process{uid, name, pid, exe, state, ip, port, fip, fport}
 
-		p := Process{uid, name, pid, exe, state, ip, port, fip, fport}
+			Processes = append(Processes, p)
 
-		Processes = append(Processes, p)
+		}
 
+		return Processes, nil
 	}
+	return nil, err
 
-	return Processes
 }
 
 func Tcp() []Process {
