@@ -225,26 +225,26 @@ func netstat(t string) ([]Process, error) {
 
 }
 
-func Tcp() []Process {
+func Tcp() ([]Process, error) {
 	// Get a slice of Process type with TCP data
-	data := netstat("tcp")
-	return data
+	data, err := netstat("tcp")
+	return data, err
 }
 
-func Udp() []Process {
+func Udp() ([]Process, error) {
 	// Get a slice of Process type with UDP data
-	data := netstat("udp")
-	return data
+	data, err := netstat("udp")
+	return data, err
 }
 
-func Tcp6() []Process {
+func Tcp6() ([]Process, error) {
 	// Get a slice of Process type with TCP6 data
-	data := netstat("tcp6")
-	return data
+	data, err := netstat("tcp6")
+	return data, err
 }
 
-func Udp6() []Process {
+func Udp6() ([]Process, error) {
 	// Get a slice of Process type with UDP6 data
-	data := netstat("udp6")
-	return data
+	data, err := netstat("udp6")
+	return data, err
 }
