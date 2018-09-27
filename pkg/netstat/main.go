@@ -12,9 +12,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
-	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -41,10 +38,6 @@ var STATE = map[string]string{
 }
 
 type Process struct {
-	User        string
-	Name        string
-	Pid         string
-	Exe         string
 	State       string
 	Ip          string
 	Port        int64
@@ -132,49 +125,6 @@ func convertIp(ip string) string {
 	return out
 }
 
-func findPid(inode string) string {
-	// Loop through all fd dirs of process on /proc to compare the inode and
-	// get the pid.
-
-	pid := "-"
-
-	d, err := filepath.Glob("/proc/[0-9]*/fd/[0-9]*")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	re := regexp.MustCompile(inode)
-	for _, item := range d {
-		path, _ := os.Readlink(item)
-		out := re.FindString(path)
-		if len(out) != 0 {
-			pid = strings.Split(item, "/")[2]
-		}
-	}
-	return pid
-}
-
-func getProcessExe(pid string) string {
-	exe := fmt.Sprintf("/proc/%s/exe", pid)
-	path, _ := os.Readlink(exe)
-	return path
-}
-
-func getProcessName(exe string) string {
-	n := strings.Split(exe, "/")
-	name := n[len(n)-1]
-	return strings.Title(name)
-}
-
-func getUser(uid string) string {
-	u, err := user.LookupId(uid)
-	if err != nil {
-		return "unknown"
-	}
-	return u.Username
-}
-
 func removeEmpty(array []string) []string {
 	// remove empty data from line
 	var new_array []string
@@ -208,12 +158,7 @@ func netstat(t string) ([]Process, error) {
 			fport := hexToDec(fip_port[1])
 
 			state := STATE[line_array[3]]
-			uid := getUser(line_array[7])
-			pid := findPid(line_array[9])
-			exe := getProcessExe(pid)
-			name := getProcessName(exe)
-
-			p := Process{uid, name, pid, exe, state, ip, port, fip, fport}
+			p := Process{state, ip, port, fip, fport}
 
 			Processes = append(Processes, p)
 
