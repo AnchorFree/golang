@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -62,8 +63,7 @@ func getData(t string) ([]string, error) {
 		fmt.Printf("%s is a invalid type, tcp and udp only!\n", t)
 		os.Exit(1)
 	}
-
-	data, err := ioutil.ReadFile(proc_t)
+	data, err := ioutil.ReadFile(filepath.Clean(proc_t))
 	if err != nil {
 		return nil, err
 	}

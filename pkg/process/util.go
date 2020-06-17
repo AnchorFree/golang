@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -56,9 +57,9 @@ var buf *bytes.Buffer
 // ReadSmallFile is like os.ReadFile but dangerously optimized for reading files from /proc.
 // The file is not statted first, and the same buffer is used every time.
 func ReadSmallFile(filename string) ([]byte, error) {
-	f, err := os.Open(filename)
+	f, err := os.Open(filepath.Clean(filename))
 	if err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, err
 	}
 
@@ -68,21 +69,21 @@ func ReadSmallFile(filename string) ([]byte, error) {
 		buf.Reset()
 	}
 	_, err = buf.ReadFrom(f)
-	f.Close()
+	_ = f.Close()
 	return buf.Bytes(), err
 }
 
 // ReadSmallFileStat is like ReadSmallFile except it also returns a FileInfo from os.Stat
 func ReadSmallFileStat(filename string) ([]byte, os.FileInfo, error) {
-	f, err := os.Open(filename)
+	f, err := os.Open(filepath.Clean(filename))
 	if err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, nil, err
 	}
 
 	info, err := f.Stat()
 	if err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, nil, err
 	}
 
@@ -92,7 +93,7 @@ func ReadSmallFileStat(filename string) ([]byte, os.FileInfo, error) {
 		buf.Reset()
 	}
 	_, err = buf.ReadFrom(f)
-	f.Close()
+	_ = f.Close()
 	return buf.Bytes(), info, err
 }
 

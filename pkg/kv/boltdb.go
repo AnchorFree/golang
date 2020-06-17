@@ -2,7 +2,7 @@ package kv
 
 import (
 	"errors"
-	bolt "github.com/coreos/bbolt"
+	bolt "go.etcd.io/bbolt"
 	"strings"
 )
 
@@ -143,7 +143,7 @@ func (b *Bolt) List(bucket string) ([]string, error) {
 		// Assume bucket exists and has keys
 		bkt := tx.Bucket([]byte(bucket))
 
-		bkt.ForEach(func(k, v []byte) error {
+		_ = bkt.ForEach(func(k, v []byte) error {
 			list = append(list, string(k))
 			return nil
 		})
