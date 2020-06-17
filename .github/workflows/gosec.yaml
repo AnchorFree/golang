@@ -1,0 +1,30 @@
+name: Run Gosec
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - name: Checkout Source 
+        uses: actions/checkout@v2
+      - name: Install gosec
+        run: |
+          mkdir -p  $GITHUB_WORKSPACE/bin
+          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s
+          echo "::add-path::$GITHUB_WORKSPACE/bin"
+          chmod +x $GITHUB_WORKSPACE/bin/gosec
+      - name: Run Gosec on jsonlog pkg
+        working-directory: ./pkg/jsonlog
+        run: gosec ./...
+      - name: Run Gosec on kv pkg
+        working-directory: ./pkg/kv
+        run: gosec ./...
+      - name: Run Gosec on netstat pkg
+        working-directory: ./pkg/netstat
+        run: gosec ./...
+      - name: Run Gosec on process pkg
+        working-directory: ./pkg/process
+        run: gosec ./...

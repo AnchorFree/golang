@@ -49,7 +49,7 @@ func GetPidList(list *Pidlist, maxProcsToScan int) {
 	if len(procNames) > maxProcsToScan-1 {
 		fmt.Println("proc table truncated because more than", maxProcsToScan, "procs found")
 	}
-	procDir.Close()
+	_ = procDir.Close()
 
 	*list = (*list)[:0]
 	var pid int
