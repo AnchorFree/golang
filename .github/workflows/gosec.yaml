@@ -1,0 +1,32 @@
+name: Run Gosec
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - name: Checkout Source 
+        uses: actions/checkout@v2
+      - name: Run Gosec on jsonlog pkg
+        uses: securego/gosec@master
+        working-directory: ./pkg/jsonlog
+        with:
+          args: ./...
+      - name: Run Gosec on kv pkg
+        uses: securego/gosec@master
+        working-directory: ./pkg/kv
+        with:
+          args: ./...
+      - name: Run Gosec on netstat pkg
+        uses: securego/gosec@master
+        working-directory: ./pkg/netstat
+        with:
+          args: ./...
+      - name: Run Gosec on process pkg
+        uses: securego/gosec@master
+        working-directory: ./pkg/process
+        with:
+          args: ./...
